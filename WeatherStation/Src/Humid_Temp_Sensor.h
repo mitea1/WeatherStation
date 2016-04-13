@@ -56,6 +56,15 @@
 #define HMDTEMP_DIG_T2_MSB			0x8B
 #define HMDTEMP_DIG_T3_LSB			0x8C
 #define HMDTEMP_DIG_T3_MSB			0x8D
+#define HMDTEMP_DIG_H1_LSB			0xA1
+#define HMDTEMP_DIG_H2_LSB			0xE1
+#define HMDTEMP_DIG_H2_MSB			0xE2
+#define HMDTEMP_DIG_H3_LSB			0xE3
+#define HMDTEMP_DIG_H4_MSB			0xE4
+#define HMDTEMP_DIG_H4_LSB			0xE5
+#define HMDTEMP_DIG_H5_LSB			0xE6
+#define HMDTEMP_DIG_H5_MSB			0xE5
+#define HMDTEMP_DIG_H6_LSB			0xE7
 
 // CTRL_MEAS Settings Modes
 #define HMDTEMP_SLEEP_MODE			0b00
@@ -70,5 +79,6 @@
 // Functions
 extern uint8_t HMDTEMP_initWeatherMonitoring(void);
 extern int32_t HMDTEMP_getTemperature(void);
+extern int32_t HMDTEMP_getHumidity(void);
 
 #endif /* HUMID_TEMP_SENSOR_H_ */
