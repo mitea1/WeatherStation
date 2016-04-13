@@ -6,7 +6,7 @@
  */
 
 #include <stm32l1xx.h>
-#include "i2c.h"
+#include "TELTRONIC_I2C.h"
 #include <math.h>
 #include "Light_Sensor.h"
 //#include "UART_Print.h"
@@ -15,19 +15,13 @@
 char string[20];
 
 
-void test(){
+/**
+ * Initializes the Light Sensor
+ */
+void LIGHT_SENSOR_init(void){
 
+	// Initialize I2C2
 	TELTRONIC_I2C_Init(I2C2);
-
-	while(1){
-
-
-
-//		sprintf(string, "%d", *data);
-//		UART1_Write("New Value: ");
-//		UART1_Write(string);
-//		UART1_Write("\n");
-	}
 }
 
 /**

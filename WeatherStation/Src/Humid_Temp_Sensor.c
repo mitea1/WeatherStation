@@ -5,7 +5,7 @@
  *      Author: Adrian
  */
 
-#include "i2c.h"
+#include "TELTRONIC_I2C.h"
 #include "Humid_Temp_Sensor.h"
 
 //Functions

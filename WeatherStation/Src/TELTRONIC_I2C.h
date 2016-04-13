@@ -7,9 +7,10 @@ extern "C" {
 
 /*----- Header-Files -------------------------------------------------------*/
 #include <stm32l1xx.h>                /* Processor STM32F407IG                */
-#include "stm32l1xx_rcc.h"
-#include "stm32l1xx_gpio.h"
-#include <teltronic.h>                  /* CARME Module                         */
+#include <stm32l1xx_rcc.h>
+#include <stm32l1xx_gpio.h>
+#include <stm32l1xx_i2c.h>
+#include "teltronic.h"                 /* CARME Module                         */
 
 /*----- Macros -------------------------------------------------------------*/
 #define CARME_I2C_BOARD             I2C2

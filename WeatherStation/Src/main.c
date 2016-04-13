@@ -33,40 +33,24 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal.h"
 #include "cmsis_os.h"
+#include "TELTRONIC_I2C.h"
+#include "Light_Sensor.h"
+#include "Humid_Temp_Sensor.h"
 
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 osThreadId defaultTaskHandle;
-
-/* USER CODE BEGIN PV */
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE END PV */
+SemaphoreHandle_t xSemaphore_I2C;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void StartDefaultTask(void const * argument);
+static void LightMeasureTask(void *pvargs);
+static void TempMeasureTask(void *pvargs);
 
-/* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
-/* USER CODE END PFP */
-
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 int main(void)
 {
-
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration----------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
@@ -74,53 +58,25 @@ int main(void)
   /* Configure the system clock */
   SystemClock_Config();
 
-  /* Initialize all configured peripherals */
+  /* Hardware Configuration */
+  LIGHT_SENSOR_init();
+  HMDTEMP_initWeatherMonitoring();
 
-  /* USER CODE BEGIN 2 */
 
-  /* USER CODE END 2 */
 
-  /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
+  /* Semaphore creation */
+  xSemaphore_I2C = xSemaphoreCreateMutex();
 
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
+  /* Task creation */
+  xTaskCreate(LightMeasureTask, "Light Measurment Task", 200U, NULL, 4U, NULL);
+  xTaskCreate(TempMeasureTask, "Temperature Measurment Task", 200U, NULL, 4U, NULL);
+  vTaskStartScheduler();
 
-  /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
-
-  /* Create the thread(s) */
-  /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
-
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
-  /* USER CODE END RTOS_THREADS */
-
-  /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
- 
-
-  /* Start scheduler */
-  osKernelStart();
-  
-  /* We should never get here as control is now taken by the scheduler */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   while (1)
   {
-  /* USER CODE END WHILE */
-
-  /* USER CODE BEGIN 3 */
 
   }
-  /* USER CODE END 3 */
+  return 0;
 
 }
 
@@ -159,22 +115,54 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 }
 
-/* USER CODE BEGIN 4 */
 
-/* USER CODE END 4 */
+/**
+ * @brief		Task that reads the Lux value from
+ * 				the Lightsensor
+ */
+static void LightMeasureTask(void *pvargs) {
 
-/* StartDefaultTask function */
-void StartDefaultTask(void const * argument)
-{
+	double lux_value;
+	for (;;) {
+		// Wait for i2c bus access
+		if(xSemaphoreTake(xSemaphore_I2C,portMAX_DELAY) == pdTRUE){
+			lux_value = LIGHT_SENSOR_getLux();
+			xSemaphoreGive(xSemaphore_I2C);
+		}
 
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END 5 */ 
+		osDelay(500);
+	}
 }
+
+static void TempMeasureTask(void *pvargs) {
+
+	uint32_t temp_value;
+	for (;;) {
+		// Wait for i2c bus access
+		if(xSemaphoreTake(xSemaphore_I2C,portMAX_DELAY) == pdTRUE){
+			temp_value = HMDTEMP_getTemperature();
+			xSemaphoreGive(xSemaphore_I2C);
+		}
+		osDelay(500);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifdef USE_FULL_ASSERT
 
@@ -196,12 +184,5 @@ void assert_failed(uint8_t* file, uint32_t line)
 
 #endif
 
-/**
-  * @}
-  */ 
-
-/**
-  * @}
-*/ 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

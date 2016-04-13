@@ -6,7 +6,7 @@
  */
 /*----- Header-Files -------------------------------------------------------*/
 #include <stm32l1xx.h>				/* Processor STM32F407IG				*/
-#include "stm32l1xx_rcc.h"
+#include "stm32l1xx_hal_rcc.h"
 
 #define MAN_FAM_DEN_VAL 0x25       // Used for Chip Identity (see datasheet)
 #define PAGE_COUNT 4096            // Number of pages in the chip

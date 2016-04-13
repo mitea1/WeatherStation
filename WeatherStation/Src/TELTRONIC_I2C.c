@@ -5,8 +5,10 @@ extern "C" {
 
 /*----- Header-Files -------------------------------------------------------*/
 #include <stm32l1xx.h>             	/* Processor STM32               */
-#include <teltronic.h>          	/* Teltronic Module                         */
-#include <i2c.h>
+#include "TELTRONIC.h"          	/* Teltronic Module                         */
+#include <stm32l1xx_gpio.h>
+#include "TELTRONIC_I2C.h"
+
 
 /*----- Macros -------------------------------------------------------------*/
 #define TIMEOUT_MAX         0x6000

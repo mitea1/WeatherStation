@@ -5,7 +5,7 @@
  *  @author	Adrian Mitevski
  */
 
-#include "uart1.h"
+#include "TELTRONIC_UART.h"
 
 /**
  * @brief Initializes UART1

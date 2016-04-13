@@ -7,6 +7,7 @@
 #include "stm32l1xx.h"
 #include "stm32l1xx_rcc.h"
 #include "stm32l1xx_gpio.h"
+#include "stm32l1xx_usart.h"
 
 #ifndef UART_PRINT_H_
 #define UART_PRINT_H_

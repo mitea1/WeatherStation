@@ -7,8 +7,8 @@
 
 #include <stdio.h>
 #include <time.h>
-#include "Flash.h"
-#include "teltronic_io2.h"
+#include "Flash_Memory.h"
+#include "TELTRONIC_SPI.h"
 #include <stdint.h>
 
 

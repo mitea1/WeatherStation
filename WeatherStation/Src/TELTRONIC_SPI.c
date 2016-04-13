@@ -1,44 +1,25 @@
 /*
- * teltronic_io2.c
+ * SPI.c
  *
  *  Created on: Mar 24, 2016
  *      Author: Simon
  */
 
 /*----- Header-Files -------------------------------------------------------*/
-#include <stm32l1xx.h>				/* Processor STM32F407IG				*/
+#include <stm32l1xx.h>				/* Processor STM32L151CB				*/
 #include "stm32l1xx_rcc.h"
-#include <teltronic_io2.h>			/* TELTRONIC IO2 Module					*/
-/**
- * @brief	TELTRONIC IO2 Port and Pin association
- */
-//static TELTRONIC_Port_Pin_t TELTRONIC_IO2_Port_Pin[] = {
-//		// SPI 1
-//		{ GPIOA, GPIO_Pin_7, GPIO_Mode_AF, GPIO_AF_SPI1 },	/**< SPI1 MOSI	*/
-//		{ GPIOA, GPIO_Pin_6, GPIO_Mode_AF, GPIO_AF_SPI1 },	/**< SPI1 MISO	*/
-//		{ GPIOA, GPIO_Pin_5, GPIO_Mode_AF, GPIO_AF_SPI1 },	/**< SPI1 CLK	*/
-//		{ GPIOA, GPIO_Pin_4, GPIO_Mode_OUT },				/**< SPI1 NSS	*/
-//
-//		// SPI to LoRa Semtech
-//		{ GPIOB, GPIO_Pin_15, GPIO_Mode_AF, GPIO_AF_SPI2 },	/**< SPI1 MOSI	*/
-//		{ GPIOB, GPIO_Pin_14, GPIO_Mode_AF, GPIO_AF_SPI2 },	/**< SPI1 MISO	*/
-//		{ GPIOB, GPIO_Pin_13, GPIO_Mode_AF, GPIO_AF_SPI2 },	/**< SPI1 CLK	*/
-//		{ GPIOB, GPIO_Pin_12, GPIO_Mode_OUT },				/**< SPI1 NSS	*/
-//
-//		// SPI 3
-//		{ GPIOB, GPIO_Pin_5, GPIO_Mode_AF, GPIO_AF_SPI3 },	/**< SPI1 MOSI	*/
-//		{ GPIOB, GPIO_Pin_4, GPIO_Mode_AF, GPIO_AF_SPI3 },	/**< SPI1 MISO	*/
-//		{ GPIOB, GPIO_Pin_3, GPIO_Mode_AF, GPIO_AF_SPI3 },	/**< SPI1 CLK	*/
-//		{ GPIOA, GPIO_Pin_15, GPIO_Mode_OUT },				/**< SPI1 NSS	*/
-//};
+#include "stm32l1xx_spi.h"
+#include "stm32l1xx_gpio.h"
+#include "TELTRONIC_SPI.h"					/* TELTRONIC SPI Module					*/
+
 /**
  *****************************************************************************
- * @brief		TELTRONIC IO2 initialization.
+ * @brief		TELTRONIC SPI initialization.
  *
  * @return		None
  *****************************************************************************
  */
-void teltronic_IO2_Init(void){
+void teltronic_SPI_Init(void){
 	/* Variables */
 	SPI_InitTypeDef SPI_InitStructure;
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -80,7 +61,7 @@ void teltronic_IO2_Init(void){
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_15 | GPIO_Pin_14 | GPIO_Pin_13;
-			//| GPIO_Pin_5 | GPIO_Pin_4 | GPIO_Pin_3;
+			//| GPIO_Pin_5 | GPIO_Pin_4 | GPIO_Pin_3; 		/* SPI3 (opt.) */
 	GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 	/* Initialize the GPIO CS of GPIOA */
@@ -88,7 +69,7 @@ void teltronic_IO2_Init(void){
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4; //| GPIO_Pin_15;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4; //| GPIO_Pin_15; /* SPI3 (opt.) */
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	/* Initialize the GPIO CS of GPIOB */
@@ -108,18 +89,18 @@ void teltronic_IO2_Init(void){
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_SPI2);
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2);
 
-//	GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_SPI3);
-//	GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_SPI3);
-//	GPIO_PinAFConfig(GPIOB, GPIO_PinSource3, GPIO_AF_SPI3);
+//	GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_SPI3);	/* SPI3 (opt.) */
+//	GPIO_PinAFConfig(GPIOB, GPIO_PinSource4, GPIO_AF_SPI3);	/* SPI3 (opt.) */
+//	GPIO_PinAFConfig(GPIOB, GPIO_PinSource3, GPIO_AF_SPI3);	/* SPI3 (opt.) */
 
 	/* Disable Chip Select */
 	GPIO_SetBits(GPIOA, GPIO_Pin_4);
 	GPIO_SetBits(GPIOB, GPIO_Pin_12);
-	//GPIO_SetBits(GPIOA, GPIO_Pin_15);
+	//GPIO_SetBits(GPIOA, GPIO_Pin_15);						/* SPI3 (opt.) */
 
 	SPI_Cmd(SPI1, ENABLE);
 	SPI_Cmd(SPI2, ENABLE);
-	//SPI_Cmd(SPI3, ENABLE);
+	//SPI_Cmd(SPI3, ENABLE);								/* SPI3 (opt.) */
 
 }
 
@@ -137,7 +118,7 @@ void teltronic_IO2_Init(void){
  * @return		None
  *****************************************************************************
  */
-void TELTRONIC_IO2_SPI_CS_Out(uint8_t SPI_Nbr, uint8_t cs) {
+void TELTRONIC_SPI_CS_Out(uint8_t SPI_Nbr, uint8_t cs) {
 
 	/* Set Chip Select Pin */
 	switch(SPI_Nbr){
@@ -166,7 +147,7 @@ void TELTRONIC_IO2_SPI_CS_Out(uint8_t SPI_Nbr, uint8_t cs) {
 }
 /**
  *****************************************************************************
- * @brief		Send a half word over the SPI1 port.
+ * @brief		Send a half word over the selected SPI port.
  *
  * @param[in]	data	Half word you want to send.
  * 				SPI		Choose SPI Nbr.
@@ -176,11 +157,11 @@ void TELTRONIC_IO2_SPI_CS_Out(uint8_t SPI_Nbr, uint8_t cs) {
  * @return		None
  *****************************************************************************
  */
-void TELTRONIC_IO2_SPI_Send(uint8_t SPI_Nbr, uint16_t data) {
-	/* write data to be transmitted to the SPI data register */
+void TELTRONIC_SPI_Send(uint8_t SPI_Nbr, uint16_t data) {
+
 	switch(SPI_Nbr){
 	case 1:
-
+		/* write data to be transmitted to the SPI1 data register */
 		SPI_I2S_SendData(SPI1, data);
 
 		/* wait until transmit complete */
@@ -189,12 +170,12 @@ void TELTRONIC_IO2_SPI_Send(uint8_t SPI_Nbr, uint16_t data) {
 		/* wait until receive complete */
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)
 			;
-		/* wait until SPI is not busy anymore */
+		/* wait until SPI1 is not busy anymore */
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 			;
 		break;
 	case 2:
-		/* write data to be transmitted to the SPI data register */
+		/* write data to be transmitted to the SPI2 data register */
 		SPI_I2S_SendData(SPI2, data);
 
 		/* wait until transmit complete */
@@ -203,26 +184,26 @@ void TELTRONIC_IO2_SPI_Send(uint8_t SPI_Nbr, uint16_t data) {
 		/* wait until receive complete */
 		while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET)
 			;
-		/* wait until SPI is not busy anymore */
+		/* wait until SPI2 is not busy anymore */
 		while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET)
 			;
 		break;
-	case 3:
-		/* write data to be transmitted to the SPI data register */
-		SPI_I2S_SendData(SPI3, data);
-
-		/* wait until transmit complete */
-		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_TXE) == RESET)
-			;
-		/* wait until receive complete */
-		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_RXNE) == RESET)
-			;
-		/* wait until SPI is not busy anymore */
-		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_BSY) == SET)
-			;
-		break;
+//TODO removed mitea1
+		//	case 3:
+//		/* write data to be transmitted to the SPI3 data register */
+//		SPI_I2S_SendData(SPI3, data);
+//
+//		/* wait until transmit complete */
+//		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_TXE) == RESET)
+//			;
+//		/* wait until receive complete */
+//		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_RXNE) == RESET)
+//			;
+//		/* wait until SPI3 is not busy anymore */
+//		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_BSY) == SET)
+//			;
+//		break;
 	default:
-		//printf("\nno valid SPI channel selected!\n");
 		break;
 	}
 }
@@ -235,7 +216,7 @@ void TELTRONIC_IO2_SPI_Send(uint8_t SPI_Nbr, uint16_t data) {
  * @return		None
  *****************************************************************************
  */
-void TELTRONIC_IO2_SPI_Receive(uint8_t SPI_Nbr, uint16_t *pValue) {
+void TELTRONIC_SPI_Receive(uint8_t SPI_Nbr, uint16_t *pValue) {
 
 	switch (SPI_Nbr){
 	case 1:
@@ -245,7 +226,7 @@ void TELTRONIC_IO2_SPI_Receive(uint8_t SPI_Nbr, uint16_t *pValue) {
 		/* wait until receive complete */
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)
 			;
-		/* wait until SPI is not busy anymore */
+		/* wait until SPI1 is not busy anymore */
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
 			;
 
@@ -258,96 +239,27 @@ void TELTRONIC_IO2_SPI_Receive(uint8_t SPI_Nbr, uint16_t *pValue) {
 		/* wait until receive complete */
 		while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET)
 			;
-		/* wait until SPI is not busy anymore */
+		/* wait until SPI2 is not busy anymore */
 		while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET)
 			;
 
 		*pValue = SPI_I2S_ReceiveData(SPI2);
 		break;
-	case 3:
-		/* wait until transmit complete */
-		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_TXE) == RESET)
-			;
-		/* wait until receive complete */
-		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_RXNE) == RESET)
-			;
-		/* wait until SPI is not busy anymore */
-		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_BSY) == SET)
-			;
-
-		*pValue = SPI_I2S_ReceiveData(SPI3);
-		break;
+		//TODO removed mitea1
+//	case 3:
+//		/* wait until transmit complete */
+//		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_TXE) == RESET)
+//			;
+//		/* wait until receive complete */
+//		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_RXNE) == RESET)
+//			;
+//		/* wait until SPI3 is not busy anymore */
+//		while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_BSY) == SET)
+//			;
+//
+//		*pValue = SPI_I2S_ReceiveData(SPI3);
+//		break;
 	default:
-		//printf("\nno valid SPI channel selected!\n");
 		break;
 	}
 }
-
-///**
-// *****************************************************************************
-// * @brief		Receive a half word from the SPI1 input buffer.
-// *
-// * @param[out]	pValue	Pointer to the half word buffer to write data in.
-// * @return		None
-// *****************************************************************************
-// */
-//void TELTRONIC_IO2_SPI1_Receive(uint16_t *pValue) {
-//
-//	/* wait until transmit complete */
-//	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET)
-//		;
-//	/* wait until receive complete */
-//	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)
-//		;
-//	/* wait until SPI is not busy anymore */
-//	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
-//		;
-//
-//	*pValue = SPI_I2S_ReceiveData(SPI1);
-//}
-//
-///**
-// *****************************************************************************
-// * @brief		Receive a half word from the SPI2 input buffer. (LoRa Semtech
-// * 				Port)
-// *
-// * @param[out]	pValue	Pointer to the half word buffer to write data in.
-// * @return		None
-// *****************************************************************************
-// */
-//void TELTRONIC_IO2_SPI2_Receive(uint16_t *pValue) {
-//
-//	/* wait until transmit complete */
-//	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_TXE) == RESET)
-//		;
-//	/* wait until receive complete */
-//	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_RXNE) == RESET)
-//		;
-//	/* wait until SPI is not busy anymore */
-//	while (SPI_I2S_GetFlagStatus(SPI2, SPI_I2S_FLAG_BSY) == SET)
-//		;
-//
-//	*pValue = SPI_I2S_ReceiveData(SPI2);
-//}
-///**
-// *****************************************************************************
-// * @brief		Receive a half word from the SPI3 input buffer.
-// *
-// * @param[out]	pValue	Pointer to the half word buffer to write data in.
-// * @return		None
-// *****************************************************************************
-// */
-//void TELTRONIC_IO2_SPI3_Receive(uint16_t *pValue) {
-//
-//	/* wait until transmit complete */
-//	while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_TXE) == RESET)
-//		;
-//	/* wait until receive complete */
-//	while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_RXNE) == RESET)
-//		;
-//	/* wait until SPI is not busy anymore */
-//	while (SPI_I2S_GetFlagStatus(SPI3, SPI_I2S_FLAG_BSY) == SET)
-//		;
-//
-//	*pValue = SPI_I2S_ReceiveData(SPI3);
-//}
