@@ -129,7 +129,6 @@ static void LightMeasureTask(void *pvargs) {
 			lux_value = LIGHT_SENSOR_getLux();
 			xSemaphoreGive(xSemaphore_I2C);
 		}
-
 		osDelay(500);
 	}
 }

@@ -55,7 +55,6 @@ uint8_t HMDTEMP_initWeatherMonitoring(void){
 	dig_T2=(dig_T2_raw[1]<<8)|dig_T2_raw[0];
 	dig_T3=(dig_T3_raw[1]<<8)|dig_T3_raw[0];
 
-
 	return 0;
 }
 
@@ -63,7 +62,6 @@ uint8_t HMDTEMP_initWeatherMonitoring(void){
  * Returns the Lux value from the Light Sensor
  */
 int32_t HMDTEMP_getTemperature(void){
-
 
 	// Error Value
 	uint8_t error;
@@ -101,7 +99,6 @@ int32_t HMDTEMP_getHumidity(void){
 	// Data Containers
 	uint8_t hum_msb[1];
 	uint8_t hum_lsb[1];
-
 
 	// Get Data via I2C
 	error = TELTRONIC_I2C_Read(
