@@ -20,6 +20,7 @@
 // Functions
 
 extern void LIGHT_SENSOR_init(void);
-extern double LIGHT_SENSOR_getLux(void);
+//extern double LIGHT_SENSOR_getLux(void);
+extern uint16_t LIGHT_SENSOR_getLux(void);
 
 #endif /* LIGHT_SENSOR_H_ */

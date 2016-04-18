@@ -31,25 +31,29 @@
   ******************************************************************************
   */
 /* Includes ------------------------------------------------------------------*/
+#include "main.h"
 #include "stm32l1xx_hal.h"
-#include "cmsis_os.h"
 #include "TELTRONIC_I2C.h"
-#include "Light_Sensor.h"
+#include "LightTask.h"
+#include "Datahandler.h"
 #include "Humid_Temp_Sensor.h"
 
 
 /* Private variables ---------------------------------------------------------*/
 osThreadId defaultTaskHandle;
+
+//Semaphores
 SemaphoreHandle_t xSemaphore_I2C;
-SemaphoreHandle_t xSemaphore_Humidity;
-SemaphoreHandle_t xSemaphore_Temperature;
-SemaphoreHandle_t xSemaphore_Pressure;
-SemaphoreHandle_t xSemaphore_Light;
+
+//Queues
+QueueHandle_t queueHumidity;
+QueueHandle_t queueTemperature;
+QueueHandle_t queueLight;
+QueueHandle_t queuePressure;
+QueueHandle_t queueWeatherData;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-static void LightMeasureTask(void *pvargs);
-static void TempMeasureTask(void *pvargs);
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -63,22 +67,25 @@ int main(void)
   SystemClock_Config();
 
   /* Hardware Configuration */
+  Usart1Init();
   LIGHT_SENSOR_init();
   HMDTEMP_initWeatherMonitoring();
 
-
-
   /* Semaphore creation */
   xSemaphore_I2C = xSemaphoreCreateMutex();
-  xSemaphore_Humidity = xSemaphoreCreateBinary();
-  xSemaphore_Temperature = xSemaphoreCreateBinary();
-  xSemaphore_Pressure = xSemaphoreCreateBinary();
-  xSemaphore_Light = xSemaphoreCreateBinary();
+
+  /* Queue creation */
+  queueHumidity = xQueueCreate(QUEUE_SIZE_HUMIDITY,sizeof(uint32_t));
+  queueTemperature = xQueueCreate(QUEUE_SIZE_TEMPERATURE,sizeof(uint32_t));
+  queuePressure = xQueueCreate(QUEUE_SIZE_PRESSURE,sizeof(uint32_t));
+  queueLight = xQueueCreate(QUEUE_SIZE_LIGHT,sizeof(uint16_t));
+
+
 
   /* Task creation */
-//  xTaskCreate(LightMeasureTask, "Light Measurment Task", 200U, NULL, 4U, NULL);
-//  xTaskCreate(TempMeasureTask, "Temperature Measurment Task", 200U, NULL, 4U, NULL);
-//  vTaskStartScheduler();
+  xTaskCreate(DataHandlerTask,"Data Handler", 200U, NULL, 4U, NULL);
+  xTaskCreate(LightMeasureTask,"Light Measurement", 200U, NULL, 4U, NULL);
+  vTaskStartScheduler();
 
   while (1)
   {

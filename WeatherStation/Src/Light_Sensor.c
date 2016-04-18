@@ -9,14 +9,9 @@
 #include "TELTRONIC_I2C.h"
 #include <math.h>
 #include "Light_Sensor.h"
-//#include "UART_Print.h"
-
-
-char string[20];
-
 
 /**
- * Initializes the Light Sensor
+ * @brief Initializes the Light Sensor
  */
 void LIGHT_SENSOR_init(void){
 
@@ -25,9 +20,10 @@ void LIGHT_SENSOR_init(void){
 }
 
 /**
- * Returns the Lux from the Light Sensor
+ * @brief Returns the Lux from the Light Sensor
+ * @return Lux
  */
-double LIGHT_SENSOR_getLux(void){
+uint16_t LIGHT_SENSOR_getLux(void){
 
 	// Error Value
 	uint8_t error;
@@ -43,7 +39,7 @@ double LIGHT_SENSOR_getLux(void){
 	uint8_t mantissa = data[0] & 0xF;
 
 	// Calculate the lux value
-	double lux = pow(2,exponent) + mantissa * 0.72;
+	uint16_t lux = pow(2,exponent) * mantissa * 0.72;
 
 	return lux;
 }
