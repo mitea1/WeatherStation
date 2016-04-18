@@ -56,6 +56,26 @@
 #define HMDTEMP_DIG_T2_MSB			0x8B
 #define HMDTEMP_DIG_T3_LSB			0x8C
 #define HMDTEMP_DIG_T3_MSB			0x8D
+
+#define HMDTEMP_DIG_P1_LSB			0x8E
+#define HMDTEMP_DIG_P1_MSB			0x8F
+#define HMDTEMP_DIG_P2_LSB			0x90
+#define HMDTEMP_DIG_P2_MSB			0x91
+#define HMDTEMP_DIG_P3_LSB			0x92
+#define HMDTEMP_DIG_P3_MSB			0x93
+#define HMDTEMP_DIG_P4_LSB			0x94
+#define HMDTEMP_DIG_P4_MSB			0x95
+#define HMDTEMP_DIG_P5_LSB			0x96
+#define HMDTEMP_DIG_P5_MSB			0x97
+#define HMDTEMP_DIG_P6_LSB			0x98
+#define HMDTEMP_DIG_P6_MSB			0x99
+#define HMDTEMP_DIG_P7_LSB			0x9A
+#define HMDTEMP_DIG_P7_MSB			0x9B
+#define HMDTEMP_DIG_P8_LSB			0x9C
+#define HMDTEMP_DIG_P8_MSB			0x9D
+#define HMDTEMP_DIG_P9_LSB			0x9E
+#define HMDTEMP_DIG_P9_MSB			0x9F
+
 #define HMDTEMP_DIG_H1_LSB			0xA1
 #define HMDTEMP_DIG_H2_LSB			0xE1
 #define HMDTEMP_DIG_H2_MSB			0xE2
@@ -80,5 +100,7 @@
 extern uint8_t HMDTEMP_initWeatherMonitoring(void);
 extern int32_t HMDTEMP_getTemperature(void);
 extern int32_t HMDTEMP_getHumidity(void);
+extern int32_t HMDTEMP_getPressure(void);
+extern int32_t bmp280_compensate_T_int32(int32_t);
 
 #endif /* HUMID_TEMP_SENSOR_H_ */
