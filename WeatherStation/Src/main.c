@@ -41,6 +41,10 @@
 /* Private variables ---------------------------------------------------------*/
 osThreadId defaultTaskHandle;
 SemaphoreHandle_t xSemaphore_I2C;
+SemaphoreHandle_t xSemaphore_Humidity;
+SemaphoreHandle_t xSemaphore_Temperature;
+SemaphoreHandle_t xSemaphore_Pressure;
+SemaphoreHandle_t xSemaphore_Light;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -66,11 +70,15 @@ int main(void)
 
   /* Semaphore creation */
   xSemaphore_I2C = xSemaphoreCreateMutex();
+  xSemaphore_Humidity = xSemaphoreCreateBinary();
+  xSemaphore_Temperature = xSemaphoreCreateBinary();
+  xSemaphore_Pressure = xSemaphoreCreateBinary();
+  xSemaphore_Light = xSemaphoreCreateBinary();
 
   /* Task creation */
-  xTaskCreate(LightMeasureTask, "Light Measurment Task", 200U, NULL, 4U, NULL);
-  xTaskCreate(TempMeasureTask, "Temperature Measurment Task", 200U, NULL, 4U, NULL);
-  vTaskStartScheduler();
+//  xTaskCreate(LightMeasureTask, "Light Measurment Task", 200U, NULL, 4U, NULL);
+//  xTaskCreate(TempMeasureTask, "Temperature Measurment Task", 200U, NULL, 4U, NULL);
+//  vTaskStartScheduler();
 
   while (1)
   {
@@ -116,35 +124,35 @@ void SystemClock_Config(void)
 }
 
 
-/**
- * @brief		Task that reads the Lux value from
- * 				the Lightsensor
- */
-static void LightMeasureTask(void *pvargs) {
-
-	double lux_value;
-	for (;;) {
-		// Wait for i2c bus access
-		if(xSemaphoreTake(xSemaphore_I2C,portMAX_DELAY) == pdTRUE){
-			lux_value = LIGHT_SENSOR_getLux();
-			xSemaphoreGive(xSemaphore_I2C);
-		}
-		osDelay(500);
-	}
-}
-
-static void TempMeasureTask(void *pvargs) {
-
-	uint32_t temp_value;
-	for (;;) {
-		// Wait for i2c bus access
-		if(xSemaphoreTake(xSemaphore_I2C,portMAX_DELAY) == pdTRUE){
-			temp_value = HMDTEMP_getTemperature();
-			xSemaphoreGive(xSemaphore_I2C);
-		}
-		osDelay(500);
-	}
-}
+///**
+// * @brief		Task that reads the Lux value from
+// * 				the Lightsensor
+// */
+//static void LightMeasureTask(void *pvargs) {
+//
+//	double lux_value;
+//	for (;;) {
+//		// Wait for i2c bus access
+//		if(xSemaphoreTake(xSemaphore_I2C,portMAX_DELAY) == pdTRUE){
+//			lux_value = LIGHT_SENSOR_getLux();
+//			xSemaphoreGive(xSemaphore_I2C);
+//		}
+//		osDelay(500);
+//	}
+//}
+//
+//static void TempMeasureTask(void *pvargs) {
+//
+//	uint32_t temp_value;
+//	for (;;) {
+//		// Wait for i2c bus access
+//		if(xSemaphoreTake(xSemaphore_I2C,portMAX_DELAY) == pdTRUE){
+//			temp_value = HMDTEMP_getTemperature();
+//			xSemaphoreGive(xSemaphore_I2C);
+//		}
+//		osDelay(500);
+//	}
+//}
 
 
 
