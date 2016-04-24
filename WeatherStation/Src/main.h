@@ -18,6 +18,7 @@
 //Semaphores
 extern SemaphoreHandle_t xSemaphore_I2C;
 
+//Queues
 extern QueueHandle_t queueHumidity;
 extern QueueHandle_t queueTemperature;
 extern QueueHandle_t queueLight;

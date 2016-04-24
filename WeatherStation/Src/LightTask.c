@@ -23,7 +23,6 @@ void LightMeasureTask(void *pvargs) {
 			// Get actual lux value from Sensor
 			luxValue = LIGHT_SENSOR_getLux();
 			// Wait for Message Queue access
-
 			if(xQueueSendToBack(queueLight,(void*)&luxValue,portMAX_DELAY) == pdTRUE){
 
 			}

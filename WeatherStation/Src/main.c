@@ -35,6 +35,9 @@
 #include "stm32l1xx_hal.h"
 #include "TELTRONIC_I2C.h"
 #include "LightTask.h"
+#include "TemperatureTask.h"
+#include "HumidityTask.h"
+#include "PressureTask.h"
 #include "Datahandler.h"
 #include "Humid_Temp_Sensor.h"
 
@@ -54,12 +57,10 @@ QueueHandle_t queueWeatherData;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-
 /* Private function prototypes -----------------------------------------------*/
 
 int main(void)
 {
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
@@ -75,22 +76,24 @@ int main(void)
   xSemaphore_I2C = xSemaphoreCreateMutex();
 
   /* Queue creation */
-  queueHumidity = xQueueCreate(QUEUE_SIZE_HUMIDITY,sizeof(uint32_t));
-  queueTemperature = xQueueCreate(QUEUE_SIZE_TEMPERATURE,sizeof(uint32_t));
+  queueHumidity = xQueueCreate(QUEUE_SIZE_HUMIDITY,sizeof(int32_t));
+  queueTemperature = xQueueCreate(QUEUE_SIZE_TEMPERATURE,sizeof(int32_t));
   queuePressure = xQueueCreate(QUEUE_SIZE_PRESSURE,sizeof(uint32_t));
   queueLight = xQueueCreate(QUEUE_SIZE_LIGHT,sizeof(uint16_t));
-
-
 
   /* Task creation */
   xTaskCreate(DataHandlerTask,"Data Handler", 200U, NULL, 4U, NULL);
   xTaskCreate(LightMeasureTask,"Light Measurement", 200U, NULL, 4U, NULL);
+  xTaskCreate(TemperatureMeasureTask,"Temp Measurement", 200U, NULL, 4U, NULL);
+  xTaskCreate(HumidityMeasureTask,"Humid Measurement", 200U, NULL, 4U, NULL);
+  xTaskCreate(PressureMeasureTask,"Pressure Measurement", 200U, NULL, 4U, NULL);
   vTaskStartScheduler();
 
   while (1)
   {
 
   }
+
   return 0;
 
 }
@@ -129,53 +132,6 @@ void SystemClock_Config(void)
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 }
-
-
-///**
-// * @brief		Task that reads the Lux value from
-// * 				the Lightsensor
-// */
-//static void LightMeasureTask(void *pvargs) {
-//
-//	double lux_value;
-//	for (;;) {
-//		// Wait for i2c bus access
-//		if(xSemaphoreTake(xSemaphore_I2C,portMAX_DELAY) == pdTRUE){
-//			lux_value = LIGHT_SENSOR_getLux();
-//			xSemaphoreGive(xSemaphore_I2C);
-//		}
-//		osDelay(500);
-//	}
-//}
-//
-//static void TempMeasureTask(void *pvargs) {
-//
-//	uint32_t temp_value;
-//	for (;;) {
-//		// Wait for i2c bus access
-//		if(xSemaphoreTake(xSemaphore_I2C,portMAX_DELAY) == pdTRUE){
-//			temp_value = HMDTEMP_getTemperature();
-//			xSemaphoreGive(xSemaphore_I2C);
-//		}
-//		osDelay(500);
-//	}
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 #ifdef USE_FULL_ASSERT

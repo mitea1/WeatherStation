@@ -9,6 +9,7 @@
 #define LIGHTTASK_H_
 
 #include "main.h"
+#include "Light_Sensor.h"
 
 #define LIGHT_TASK_DELAY_MS		1000
 
